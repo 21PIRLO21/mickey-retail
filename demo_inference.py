@@ -2,7 +2,7 @@ import torch
 import argparse
 from lib.models.builder import build_model
 from lib.datasets.utils import correct_intrinsic_scale
-from lib.models.MicKey.modules.utils.training_utils import colorize, generate_heat_map
+from lib.models.MicKey.modules.utils.training_utils import colorize, generate_heat_map, vis_inliers
 from config.default import cfg
 import numpy as np
 from pathlib import Path
@@ -16,8 +16,17 @@ def prepare_score_map(scs, img, temperature=0.5):
 
     return score_map
 
-def colorize_depth(value, vmin=None, vmax=None, cmap='magma_r', invalid_val=-99, invalid_mask=None, background_color=(0, 0, 0, 255), gamma_corrected=False, value_transform=None):
-
+def colorize_depth(
+    value,
+    vmin=None,
+    vmax=None,
+    cmap='magma_r',
+    invalid_val=-99,
+    invalid_mask=None,
+    background_color=(0, 0, 0, 255),
+    gamma_corrected=False,
+    value_transform=None
+):
     img = colorize(value, vmin, vmax, cmap, invalid_val, invalid_mask, background_color, gamma_corrected, value_transform)
 
     shape_im = img.shape
@@ -60,6 +69,7 @@ def read_intrinsics(path_intrinsics, resize=None):
             K = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
             if resize is not None:
                 K = correct_intrinsic_scale(K, resize[0] / W, resize[1] / H)
+                K = np.array(K, dtype=np.float32)
             Ks[img_name] = K
     return Ks
 
@@ -82,14 +92,14 @@ def run_demo_inference(args):
     im1 = read_color_image(args.im_path_dst).to(device)
 
     # Load intrinsics
-    K = read_intrinsics(args.intrinsics)
+    K = read_intrinsics(args.intrinsics, resize=(540, 960))
 
     # Prepare data for MicKey
     data = {}
     data['image0'] = im0
     data['image1'] = im1
-    data['K_color0'] = torch.from_numpy(K['im0.jpg']).unsqueeze(0).to(device)
-    data['K_color1'] = torch.from_numpy(K['im1.jpg']).unsqueeze(0).to(device)
+    data['K_color0'] = torch.from_numpy(K['im0']).unsqueeze(0).to(device)
+    data['K_color1'] = torch.from_numpy(K['im1']).unsqueeze(0).to(device)
 
     # Run inference
     print('Running MicKey relative pose estimation...')
@@ -115,6 +125,12 @@ def run_demo_inference(args):
 
     cv2.imwrite(args.im_path_ref.replace(ext_im0, 'depth.jpg'), depth0_map)
     cv2.imwrite(args.im_path_dst.replace(ext_im1, 'depth.jpg'), depth1_map)
+
+    # _, inliers_img = vis_inliers(data['inliers_list'], data)
+    _, inliers_img = vis_inliers(data['inliers'], data)
+    inliers_img = np.asarray(inliers_img, np.uint8)
+    inliers_img = cv2.cvtColor(inliers_img, cv2.COLOR_BGR2RGBA)
+    cv2.imwrite(args.im_path_ref.replace(ext_im0, 'inliers.jpg'), inliers_img)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -95,6 +95,7 @@ def vis_inliers(inliers, batch, batch_i=0, num_max_matches=60, norm_color=True):
     # Check the matches:
     # matches_list = inliers[batch_i][:num_max_matches]
     matches_list = inliers[batch_i][np.random.permutation(len(inliers[batch_i]))][:num_max_matches]
+    # matches_list = inliers[batch_i][np.random.permutation(len(inliers[batch_i]))][num_max_matches:100]
 
     # Prepare the matching image:
     image0 = (255 * batch['image0'][batch_i].permute(1, 2, 0)).cpu().numpy()
@@ -130,7 +131,7 @@ def vis_inliers(inliers, batch, batch_i=0, num_max_matches=60, norm_color=True):
         tmp_im = cv2.circle(tmp_im, (int(shape_im[1] + 50 + pt_dst[0]), int(pt_dst[1])), 5, color, 3)
 
     im_matches = torch.from_numpy(tmp_im).permute(2, 0, 1) / 255.
-    return im_matches
+    return im_matches, tmp_im
 
 
 def generate_heat_map(scs, img, temperature=0.5):

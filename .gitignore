@@ -1,0 +1,9 @@
+# [cui]
+*/**/__pycache__/
+
+.vscode/*.json
+
+data/customized/*
+data/toy_example/*
+debug/*
+weights/*

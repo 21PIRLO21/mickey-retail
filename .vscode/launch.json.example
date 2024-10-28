@@ -1,0 +1,89 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [],
+            "justMyCode": false
+        },
+        {
+            "name": "Python: cam_pose_transform",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "cam_pose_transform.py",
+            "console": "integratedTerminal",
+            "args": [],
+            "justMyCode": false
+        },
+        {
+            "name": "Python: train",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config",
+                "config/MicKey/curriculum_learning.yaml",
+                "--dataset_config",
+                "config/datasets/mapfree.yaml",
+                "--experiment",
+                "debug/experiment_name",
+                "--path_weights",
+                "weights/",
+                "--resume",
+                "weights/mickey.ckpt",
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Python: demo_inference",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "demo_inference.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--checkpoint",
+                // "weights/mickey.ckpt",
+                "weights/mickey_sc.ckpt",
+                "--config",
+                "weights/config.yaml",
+                "--intrinsics",
+                "data/customized/refine/shelves/intrinsics.txt",
+                "--im_path_ref",
+                // "data/customized/refine/heaps/frame_00020.png",
+                // "data/customized/refine/shelves/frame_00118.png",
+                "data/customized/posm/feihe/2003679501475643459_3911243067085056_version0/CgrU3GZDSOuAIMxkAE8erteKB4A232.jpg",
+                "--im_path_dst",
+                // "data/customized/refine/heaps/frame_00066.png",
+                // "data/customized/refine/shelves/frame_00148.png",
+                "data/customized/posm/feihe/2003679501475643459_3911243067085056_version0/feihe_131-2830378d-da4b-4247-9d13-a448dc3f57b6-0.jpg"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Python: submission",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "submission.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config",
+                "weights/config.yaml",
+                "--checkpoint",
+                "weights/mickey.ckpt",
+                "--output_root",
+                "debug/",
+                // "--split",
+                // "",
+            ],
+            "justMyCode": false
+        }
+    ]
+}
